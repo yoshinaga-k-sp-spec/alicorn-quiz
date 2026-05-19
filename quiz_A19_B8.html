@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alicorn 2019 B8 Quiz</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d2e;
+  --surface2: #222536;
+  --border: #2e3250;
+  --accent: #5b8df6;
+  --accent2: #7c6af7;
+  --green: #22c55e;
+  --green-bg: #052e16;
+  --green-border: #166534;
+  --red: #ef4444;
+  --red-bg: #2d0a0a;
+  --red-border: #991b1b;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 60px;
+}
+
+/* ── Header ── */
+.header {
+  width: 100%; max-width: 680px;
+  text-align: center;
+  margin-bottom: 28px;
+}
+.header h1 {
+  font-size: 1.1rem; font-weight: 700; color: var(--accent);
+  letter-spacing: .04em; margin-bottom: 4px;
+}
+.header p { font-size: .8rem; color: var(--text3); }
+
+/* ── Progress bar ── */
+.progress-wrap {
+  width: 100%; max-width: 680px;
+  background: var(--surface2); border-radius: 99px;
+  height: 8px; margin-bottom: 10px; overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 99px;
+  transition: width .4s ease;
+}
+.progress-label {
+  width: 100%; max-width: 680px;
+  display: flex; justify-content: space-between;
+  font-size: .78rem; color: var(--text3);
+  margin-bottom: 22px;
+}
+
+/* ── Card ── */
+.card {
+  width: 100%; max-width: 680px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 28px 28px;
+  box-shadow: var(--shadow);
+}
+
+.pos-tag {
+  display: inline-block;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text3);
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  padding: 2px 10px;
+  border-radius: 99px;
+  margin-bottom: 18px;
+  text-transform: uppercase;
+}
+
+.question {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: .02em;
+  margin-bottom: 28px;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ── Options ── */
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 480px) { .options { grid-template-columns: 1fr; } }
+
+.opt-btn {
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  color: var(--text);
+  font-size: .95rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s, background .15s, transform .1s;
+  line-height: 1.5;
+}
+.opt-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: #1e2340;
+  transform: translateY(-1px);
+}
+.opt-btn:disabled { cursor: default; }
+.opt-btn.correct {
+  border-color: var(--green);
+  background: #0a2d1a;
+  color: var(--green);
+}
+.opt-btn.wrong {
+  border-color: var(--red);
+  background: #2d0e0e;
+  color: var(--red);
+}
+.opt-btn .opt-letter {
+  display: inline-block;
+  font-weight: 700;
+  margin-right: 8px;
+  color: var(--text3);
+}
+.opt-btn.correct .opt-letter { color: var(--green); }
+.opt-btn.wrong   .opt-letter { color: var(--red);   }
+
+/* ── Explanation panels ── */
+.explanation { margin-top: 20px; display: none; flex-direction: column; gap: 10px; }
+.explanation.show { display: flex; }
+
+.panel {
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-size: .88rem;
+  line-height: 1.7;
+}
+.panel-green {
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+}
+.panel-red {
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+}
+.panel-title {
+  font-weight: 700;
+  font-size: .82rem;
+  letter-spacing: .04em;
+  margin-bottom: 6px;
+}
+.panel-green .panel-title { color: var(--green); }
+.panel-red   .panel-title { color: var(--red);   }
+
+/* ── Next button ── */
+.next-btn {
+  margin-top: 22px;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; border-radius: 10px;
+  color: #fff; font-size: 1rem; font-weight: 600; font-family: inherit;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+  display: none;
+}
+.next-btn:hover { opacity: .9; transform: translateY(-1px); }
+.next-btn.show  { display: block; }
+
+/* ── Score screen ── */
+.score-screen {
+  width: 100%; max-width: 680px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 48px 28px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  display: none;
+}
+.score-screen.show { display: block; }
+.score-circle {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem; font-weight: 700; color: #fff;
+  margin: 0 auto 24px;
+  box-shadow: 0 0 32px rgba(91,141,246,.4);
+}
+.score-msg { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+.score-sub { font-size: .9rem; color: var(--text2); margin-bottom: 32px; }
+.retry-btn {
+  padding: 14px 40px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; border-radius: 10px;
+  color: #fff; font-size: 1rem; font-weight: 600; font-family: inherit;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.retry-btn:hover { opacity: .9; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Alicorn 2019 — B8「否定①」</h1>
+  <p>英→日　4択クイズ　全22問</p>
+</div>
+
+<div class="progress-wrap"><div class="progress-bar" id="pbar"></div></div>
+<div class="progress-label">
+  <span id="p-cur">問題 1 / 22</span>
+  <span id="p-score">正解 0</span>
+</div>
+
+<div class="card" id="quiz-card">
+  <div class="pos-tag" id="pos-tag"></div>
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+  <div class="explanation" id="explanation"></div>
+  <button class="next-btn" id="next-btn" onclick="nextQ()">次の問題 →</button>
+</div>
+
+<div class="score-screen" id="score-screen">
+  <div class="score-circle" id="score-circle"></div>
+  <div class="score-msg" id="score-msg"></div>
+  <div class="score-sub" id="score-sub"></div>
+  <button class="retry-btn" onclick="startQuiz()">やり直す</button>
+</div>
+
+<script>
+const LETTERS = ['A','B','C','D'];
+
+const questions = [
+  {
+    word: "at one time",
+    pos: "idiom",
+    answer: "かつては",
+    distractors: ["もう一度だけ", "一時的に急いで", "同時に、一緒に"],
+    correct_exp: "〈語源〉at（ある時点に）+ one time（ある一時）→「かつての一時期に」。once upon a timeと同義。例：At one time, this was a forest.「かつてここは森だった。」",
+    wrong_exps: {
+      "もう一度だけ": "one timeを「もう一度」と解釈した誤り。「もう一度」はone more timeまたはonce more。at one timeは過去の一時期を指します。",
+      "一時的に急いで": "at timeを「急いで」と混同した誤り。「急いで」はin a hurry / quickly。at one timeには急ぎのニュアンスは全くありません。",
+      "同時に、一緒に": "at one time には「同時に」の意味もあるが、本文では過去の一時期を示す文脈（once=かつては）。at the same timeと混同しやすいので注意。"
+    }
+  },
+  {
+    word: "required",
+    pos: "adj",
+    answer: "必要とされる",
+    distractors: ["禁じられた", "報酬を受けた", "引退した"],
+    correct_exp: "〈語源〉ラテン語requirere（re-再び + quaerere求める）→「必要とされる・義務的な」。required reading「必読書」、required subject「必修科目」など頻出。",
+    wrong_exps: {
+      "禁じられた": "forbiddenやprohibitedと混同した誤り。requiredはむしろ逆で「必ずしなければならない」という義務・必要性を表します。",
+      "報酬を受けた": "rewardedと語頭が似ているための誤り。re-という接頭辞は共通ですが、requireは「求める」、rewardは「報酬を与える」で全く異なります。",
+      "引退した": "retiredとのスペル混同。re+tired→疲れ果てたが語源で意味が全く別。requireは「求められる・必要とされる」です。"
+    }
+  },
+  {
+    word: "limited",
+    pos: "adj",
+    answer: "限られた",
+    distractors: ["広大な", "速度超過の", "大きく変化した"],
+    correct_exp: "〈語源〉ラテン語limes（境界）→「境界が設けられた＝限られた」。a limited number「少数」、limited edition「限定版」。反義語はunlimited。",
+    wrong_exps: {
+      "広大な": "limitedの反対語vast/extensiveと混同。limitedは「制限・境界がある」ため、意味は真逆です。",
+      "速度超過の": "speed limitという熟語のlimitから「速度に関係する」と誤解した例。limitedはあくまで「制限された・少ない」という形容詞です。",
+      "大きく変化した": "alteredやchangedとの混同。limitedにはchange（変化）の意味はなく、「数・範囲が少ない・狭い」という意味です。"
+    }
+  },
+  {
+    word: "portion",
+    pos: "n",
+    answer: "部分、割合",
+    distractors: ["全体像", "目的地", "装飾品"],
+    correct_exp: "〈語源〉ラテン語portio（分け前）→「一部分・割合・（食事の）一人前」。a large portion「大きな割合」、a portion of the population「人口の一部」。",
+    wrong_exps: {
+      "全体像": "portionはpartやsegmentと同じく「部分」。wholeやentiretyが「全体」。portionは全体を示す語と真逆です。",
+      "目的地": "destinationやportとの混同。portionとportは語根が異なり、portionは「分割された部分」、portは「港・運ぶ」が語源。",
+      "装飾品": "ornamentやdecorationとの混同。portionには装飾の意味はなく、「一部分・割合・食事の量」を表します。"
+    }
+  },
+  {
+    word: "population",
+    pos: "n",
+    answer: "人口",
+    distractors: ["支持率", "汚染物質", "生産量"],
+    correct_exp: "〈語源〉ラテン語populus（人々）→「人口・住民」。population growth「人口増加」、the aging population「高齢化する人口」。形容詞はpopular（人気の）。",
+    wrong_exps: {
+      "支持率": "popularityと混同しやすい。popularityは「人気・支持」、populationは「人口（頭数）」。語根は同じpeopleですが意味は異なります。",
+      "汚染物質": "pollutionとのスペル混同（p-o-l）。pollutionは「汚染」、populationは「人口」。全く別の語です。",
+      "生産量": "productionとの混同。pro-で始まる語との誤認。populationはpopulus（人）が語源で、生産とは無関係。"
+    }
+  },
+  {
+    word: "medieval",
+    pos: "adj",
+    answer: "中世の",
+    distractors: ["近代的な", "地中海の", "医療の"],
+    correct_exp: "〈語源〉ラテン語medium aevum（中間の時代）→「中世の（約5〜15世紀）」。medieval castle「中世の城」、medieval Europe「中世ヨーロッパ」。",
+    wrong_exps: {
+      "近代的な": "modernやcontemporaryとの混同。mediumに「中間」の意味があるため「近代」と誤解しやすいが、medievalは「5〜15世紀の中世」を指します。",
+      "地中海の": "Mediterraneanとのスペル混同（medi-）。medi-は「中間」を意味する接頭辞で共通ですが、medievalは「時代的な中間＝中世」、Mediterraneanは「陸地の中間＝地中海」。",
+      "医療の": "medicalとのスペル混同（med-）。medicalはmedicus（医師）が語源。medievalはaevum（時代）が語源で医療とは無関係。"
+    }
+  },
+  {
+    word: "manuscript",
+    pos: "n",
+    answer: "写本、手稿",
+    distractors: ["印刷機", "地図帳", "楽譜集"],
+    correct_exp: "〈語源〉ラテン語manu（手で）+ scriptus（書かれた）→「手書きの文書・写本・原稿」。略語MS/ms.。印刷術発明前は貴重な情報源でした。",
+    wrong_exps: {
+      "印刷機": "printing pressとの混同。manuscriptは印刷術以前の「手書き文書」であり、印刷機とは対極の存在です。",
+      "地図帳": "atlasやmapとの混同。manu（手）+ script（書く）が語源で、地図とは無関係。manuscriptは文字情報のことです。",
+      "楽譜集": "scoreやsheetとの混同。manuscriptは「手書き文書」全般を指し、楽譜に特化した語ではありません（楽譜の手稿もmanuscriptとは呼べますが）。"
+    }
+  },
+  {
+    word: "spoken language",
+    pos: "idiom",
+    answer: "話し言葉",
+    distractors: ["外国語", "公用語", "書き言葉"],
+    correct_exp: "spoken（話された）+ language（言語）→「話し言葉・口語」。対義語はwritten language「書き言葉」。spoken Englishは「英会話・口語英語」。",
+    wrong_exps: {
+      "外国語": "foreign languageとの混同。spoken languageのspokenは「話された」という意味で、言語の種類（外国語か否か）は関係ありません。",
+      "公用語": "official languageとの混同。officialは「公式な」という意味で、spokenとは全く別の概念です。",
+      "書き言葉": "writtenとspokenを逆に覚えた典型的な誤り。spoken→口で話す、written→紙に書く、とセットで覚えましょう。"
+    }
+  },
+  {
+    word: "right up until",
+    pos: "idiom",
+    answer: "〜になってもなお",
+    distractors: ["〜のすぐ後に", "〜に反して", "〜と引き換えに"],
+    correct_exp: "right（まさに・ちょうど）+ up until（〜になるまでずっと）→「〜になる直前まで、〜になってもなお」。right up to the last momentで「最後の瞬間まで」。",
+    wrong_exps: {
+      "〜のすぐ後に": "right afterとの混同。right up untilは「ある時点まで継続」、right afterは「ある時点の直後」で時間の方向が逆です。",
+      "〜に反して": "against / contrary toとの混同。right up untilは時間的継続を表し、対立・反対の意味はありません。",
+      "〜と引き換えに": "in exchange forとの混同。right up untilは時間の流れに関するイディオムで、交換・代償の意味はありません。"
+    }
+  },
+  {
+    word: "fewer than",
+    pos: "idiom",
+    answer: "〜未満",
+    distractors: ["〜以上", "〜に比べて", "〜ほど多くの"],
+    correct_exp: "fewer（より少ない数の）+ than（〜より）→「（可算名詞が）〜より少ない」。less thanは不可算名詞に使用。fewer than 10 people「10人未満」。英検頻出。",
+    wrong_exps: {
+      "〜以上": "more thanの意味と混同。fewerはfewの比較級で「より少ない」。more thanの反対です。「以上」ならno fewer thanを使います。",
+      "〜に比べて": "compared toとの混同。thanは比較を示すが、fewer thanは数の大小（少ない）を表す比較で、単なる比較の接続詞とは役割が異なります。",
+      "〜ほど多くの": "as many asとの混同。as many asは「〜と同じくらい多くの」、fewer thanは逆に「〜より少ない」です。"
+    }
+  },
+  {
+    word: "make no difference",
+    pos: "idiom",
+    answer: "違いをもたらさない",
+    distractors: ["大きな変化をもたらす", "差別をしない", "平均を下げる"],
+    correct_exp: "make a difference（違いをもたらす）の否定形。「全く関係ない・影響がない」。It makes no difference to me.「私にはどうでもよい。」 It doesn't matter.と同義。",
+    wrong_exps: {
+      "大きな変化をもたらす": "make a big differenceとの混同。noをbigと誤読した例。make no differenceはmake a differenceの否定で「影響を与えない」です。",
+      "差別をしない": "discriminateとの混同。differenceに「差別」の意味はなく、make no differenceは「差異・影響がない」という意味です。",
+      "平均を下げる": "averageやmean downとの混同。makeを「作る」、differenceを「差」と個別解釈した誤り。イディオムとして「影響を与えない」と覚えましょう。"
+    }
+  },
+  {
+    word: "average",
+    pos: "adj",
+    answer: "平均的な",
+    distractors: ["例外的な", "積極的な", "有能な"],
+    correct_exp: "アラビア語awariyya（損傷した貨物）→フランス語→英語。「平均の・並みの」。the average person「普通の人」。名詞では「平均値」、on average「平均して」。",
+    wrong_exps: {
+      "例外的な": "exceptionalとの混同。averageは「平均・普通」でexceptionalの反対に近い語です。above average「平均以上」という表現でも分かるように対比されます。",
+      "積極的な": "activeやaggressiveとのスペル混同（a-で始まる）。averageには積極性・能動性の意味は全くありません。",
+      "有能な": "capableやcompetentとの混同。averageは「普通・中程度」で、むしろ優秀さを示す語とは対立します。below average「平均以下」という表現も覚えて。"
+    }
+  },
+  {
+    word: "dawn",
+    pos: "n",
+    answer: "夜明け",
+    distractors: ["正午", "夕暮れ", "深夜"],
+    correct_exp: "古英語dagian（日が明ける）→「夜明け・明け方」。at dawn「夎明けに」、from dawn to dusk「夜明けから夕暮れまで」。比喩的に「（時代の）夜明け」にも使います。",
+    wrong_exps: {
+      "正午": "noonやmiddayとの混同。dawnはday（日）の語源を持ち「日が始まる時」、つまり早朝です。正午は日の中間点。",
+      "夕暮れ": "duskとのd-で始まる混同。本文ではrise at dawnとstop work at duskが対比されており、dawnは朝、duskは夕方。セットで覚えましょう。",
+      "深夜": "midnightとの混同。深夜は日付が変わる時刻。dawnはその後、空が明るくなり始める時間帯です。"
+    }
+  },
+  {
+    word: "dusk",
+    pos: "n",
+    answer: "夕暮れ",
+    distractors: ["夜明け", "正午", "霧の朝"],
+    correct_exp: "古英語dox（暗い）→「たそがれ時・夕暮れ」。at dusk「夕暮れに」。dawnとセットで覚えるのが鉄板。from dusk to dawn「夕暮れから夜明けまで（＝一晩中）」。",
+    wrong_exps: {
+      "夜明け": "dawnとのd-始まりの混同。dawn＝夜明け（朝）、dusk＝夕暮れ（夜の手前）。本文のrise at dawn / stop work at duskで対比されています。",
+      "正午": "noonとの混同。duskは「暗くなりかけの夕方」でnoon（正午）は日中。時間帯が大きく異なります。",
+      "霧の朝": "mistyやfoggy morningとの混同。duskは暗さに関連しますが霧ではなく、朝でもなく「夕暮れ時の薄暗さ」を表します。"
+    }
+  },
+  {
+    word: "useless",
+    pos: "adj",
+    answer: "役に立たない",
+    distractors: ["使い過ぎの", "使用中の", "珍しい"],
+    correct_exp: "use（使用・役立つ）+ -less（〜がない）→「役に立たない・無用の」。It's useless to complain.「不平を言っても無駄だ。」類義語：pointless, futile。",
+    wrong_exps: {
+      "使い過ぎの": "overusedとの混同。-lessは「〜がない」という接尾辞で、uselessは「使い道がない」。使い過ぎは-lessではなくover-で表します。",
+      "使用中の": "in useとの混同。in use「使用中」、useless「役立たない」。useという語根が共通なため混同しやすいですが意味は逆方向です。",
+      "珍しい": "unusualとの混同。un-（〜でない）+ usualと勘違いした例。useless＝use+less（役立ちがない）で、珍しさとは無関係。"
+    }
+  },
+  {
+    word: "valueless",
+    pos: "adj",
+    answer: "価値のない",
+    distractors: ["非常に貴重な", "値段のない", "評価できない"],
+    correct_exp: "value（価値）+ -less（〜がない）→「価値のない・無価値な」。本文ではuselessと対比。valuableは「価値ある」で反対語。valuelessはpricelessと混同注意。",
+    wrong_exps: {
+      "非常に貴重な": "pricelessやinvaluableとの混同。priceless＝値段をつけられないほど貴重、valueless＝価値がまったくない。-lessが共通でも意味は正反対。",
+      "値段のない": "pricelessとの混同。priceless＝プライスレス（値段がつけられないほど高価）、valueless＝価値がゼロ。混同しやすいので注意。",
+      "評価できない": "incalculableとの混同。valuelessには「評価が難しい」という意味はなく、単純に「価値がない」ことを表します。"
+    }
+  },
+  {
+    word: "worthwhile",
+    pos: "adj",
+    answer: "やりがいのある",
+    distractors: ["時間の無駄な", "費用がかかる", "一時的な"],
+    correct_exp: "worth（〜の価値がある）+ while（時間・間）→「時間・労力を割く価値がある・やりがいのある」。a worthwhile effort「価値ある努力」。It's worthwhile to do.で頻出。",
+    wrong_exps: {
+      "時間の無駄な": "a waste of timeとの混同。whileを「時間」と捉えて否定的に解釈した誤り。worthwhile＝worth one's while（時間に値する）なので肯定的な意味です。",
+      "費用がかかる": "costlyやexpensiveとの混同。worthはコスト的側面も持ちますが、worthwhileは金銭ではなく「努力・時間の投資価値」を指します。",
+      "一時的な": "temporaryとの混同。whileを「しばらくの間」と解釈した誤り。worthwhileは時間の長短ではなく「価値があるかどうか」を表します。"
+    }
+  },
+  {
+    word: "pursue",
+    pos: "v",
+    answer: "追求する",
+    distractors: ["断念する", "批判する", "説得する"],
+    correct_exp: "ラテン語prosequi（前へ続ける）→「追いかける・追求する」。pursue truth「真理を追求する」、pursue a career「キャリアを積む」。名詞はpursuit（追求）。",
+    wrong_exps: {
+      "断念する": "abandonやgive upとの混同。pursueは「追い続ける」で断念の真逆。in pursuit of〜「〜を追い求めて」という表現でも分かります。",
+      "批判する": "criticizeとの混同。pursue（追う）とcriticize（批判する）は語源も意味も全く異なります。",
+      "説得する": "persuadeとのスペル混同（per-su-）。pursuはpursue、persuadeはper+suade（甘言で引きつける）。語頭は似ていますが意味は別です。"
+    }
+  },
+  {
+    word: "gravitation",
+    pos: "n",
+    answer: "重力",
+    distractors: ["放射線", "磁気", "摩擦力"],
+    correct_exp: "ラテン語gravis（重い）→「重力・引力」。law of gravitation「万有引力の法則」。同語源：grave（重大な）、gravity（重力・重大さ）。",
+    wrong_exps: {
+      "放射線": "radiationとのイオン化物理用語混同。radiationはradius（光線）が語源。gravitationはgravitas（重さ）が語源で、放射とは無関係。",
+      "磁気": "magnetismとの物理用語混同。磁気はN極・S極の引き合い、重力は質量に基づく引力。gravitationはニュートンの万有引力の法則が関連します。",
+      "摩擦力": "frictionとの混同。frictionはfricate（こする）が語源。gravitationは物体間の引き合う力で、こすれる摩擦とは全く別の力です。"
+    }
+  },
+  {
+    word: "relativity",
+    pos: "n",
+    answer: "相対性理論",
+    distractors: ["絶対値", "比較文法", "関連性"],
+    correct_exp: "relative（相対的な）+ -ity（名詞化）→「相対性」。theory of relativity「相対性理論」はアインシュタインが提唱。relativeは「相対的な・親戚」の意味も持つ多義語。",
+    wrong_exps: {
+      "絶対値": "absolute valueとの混同。relativity（相対性）はabsolute（絶対的）の対概念。absoluteとrelativeはよく対比される反意語です。",
+      "比較文法": "comparative grammarとの混同。relativeは関係代名詞でも使われるため、文法用語と誤解しやすい。ここでは物理学用語です。",
+      "関連性": "relevanceやrelationshipとの混同。relatedやrelativeと同語根ではあるが、本文のrelativitiyは「アインシュタインの相対性理論」を指しています。"
+    }
+  },
+  {
+    word: "eternal",
+    pos: "adj",
+    answer: "永遠の",
+    distractors: ["外部の", "内なる", "一時的な"],
+    correct_exp: "ラテン語aevum（時代・時間）→「永遠の・不朽の」。eternal life「永遠の命」、eternal questions「永遠の問い」。同語源：medieval（中世の）、aeon（永久）。",
+    wrong_exps: {
+      "外部の": "externalとのスペル混同（e-t-e-r-n）。external＝外部の（extern-）、eternal＝永遠の（aevum）。語頭の綴りが似ていますが全く別の語です。",
+      "内なる": "internalとの混同。internal（内部の）はeternal（永遠の）と語中が似ていますが、意味は全く異なります。",
+      "一時的な": "temporaryとの混同。eternalは「時間を超えた・終わりのない」という意味で、temporaryはその反対の「一時的な」です。"
+    }
+  },
+  {
+    word: "universe",
+    pos: "n",
+    answer: "宇宙",
+    distractors: ["大学", "多様性", "単一の真理"],
+    correct_exp: "ラテン語universus（全体として一つにまとまった）→「宇宙・万物・全世界」。universal「普遍的な」、university「大学（知の宇宙）」と同語源。",
+    wrong_exps: {
+      "大学": "universityとのスペル混同。universityはuniverse+ity（知識の宇宙）が語源で非常に近い語。ただし宇宙そのものはuniverse。",
+      "多様性": "diversityとのuni-/di-混同。uni-は「一つ」、di-/div-は「分割・多様」という対照的な接頭辞。universeは「すべてが一つ」の概念。",
+      "単一の真理": "uni-（一つ）から「単一の」という意味を連想した誤り。universeはuni+versus（一方向に向いた全体）で「宇宙・万物全体」を指します。"
+    }
+  },
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  current = 0; score = 0;
+  document.getElementById('quiz-card').style.display = '';
+  document.getElementById('score-screen').classList.remove('show');
+  renderQ();
+}
+
+function renderQ() {
+  answered = false;
+  const q = questions[current];
+  const total = questions.length;
+
+  // progress
+  const pct = (current / total) * 100;
+  document.getElementById('pbar').style.width = pct + '%';
+  document.getElementById('p-cur').textContent = `問題 ${current + 1} / ${total}`;
+  document.getElementById('p-score').textContent = `正解 ${score}`;
+
+  document.getElementById('pos-tag').textContent = q.pos;
+  document.getElementById('question').textContent = q.word;
+
+  // build options
+  const opts = shuffle([q.answer, ...q.distractors]);
+  const container = document.getElementById('options');
+  container.innerHTML = '';
+  opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${LETTERS[i]}</span>${opt}`;
+    btn.onclick = () => selectAnswer(opt, btn, opts);
+    container.appendChild(btn);
+  });
+
+  document.getElementById('explanation').innerHTML = '';
+  document.getElementById('explanation').className = 'explanation';
+  document.getElementById('next-btn').className = 'next-btn';
+}
+
+function selectAnswer(chosen, btn, opts) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const correct = q.answer;
+  const isCorrect = chosen === correct;
+  if (isCorrect) score++;
+
+  // color buttons
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    b.disabled = true;
+    const text = b.textContent.slice(1); // remove letter
+    if (text === correct) b.classList.add('correct');
+    else if (b === btn && !isCorrect) b.classList.add('wrong');
+  });
+
+  // explanation
+  const expDiv = document.getElementById('explanation');
+  if (isCorrect) {
+    expDiv.innerHTML = `
+      <div class="panel panel-green">
+        <div class="panel-title">✓ 正解！— ポイント</div>
+        <div>${q.correct_exp}</div>
+      </div>`;
+  } else {
+    expDiv.innerHTML = `
+      <div class="panel panel-green">
+        <div class="panel-title">✓ 正解の理由</div>
+        <div>${q.correct_exp}</div>
+      </div>
+      <div class="panel panel-red">
+        <div class="panel-title">✗ あなたが選んだ選択肢について</div>
+        <div>${q.wrong_exps[chosen] || '正解は「' + correct + '」です。'}</div>
+      </div>`;
+  }
+  expDiv.classList.add('show');
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQ() {
+  current++;
+  if (current >= questions.length) {
+    showScore();
+  } else {
+    renderQ();
+  }
+}
+
+function showScore() {
+  document.getElementById('quiz-card').style.display = 'none';
+  const ss = document.getElementById('score-screen');
+  ss.classList.add('show');
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+  document.getElementById('score-circle').textContent = `${score}/${total}`;
+  let msg, sub;
+  if (pct === 100) { msg = "🎉 パーフェクト！"; sub = "全問正解！素晴らしい語彙力です。"; }
+  else if (pct >= 80) { msg = "🌟 優秀！";         sub = `正答率 ${pct}%。もう少しで完璧！`; }
+  else if (pct >= 60) { msg = "👍 良い調子！";     sub = `正答率 ${pct}%。解説を確認して再挑戦しよう。`; }
+  else                { msg = "📚 もう一度！";     sub = `正答率 ${pct}%。語彙リストを見直してみよう。`; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('pbar').style.width = '100%';
+  document.getElementById('p-cur').textContent = `完了 ${total} / ${total}`;
+  document.getElementById('p-score').textContent = `正解 ${score}`;
+}
+
+startQuiz();
+</script>
+</body>
+</html>
