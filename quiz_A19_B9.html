@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alicorn 2019 B9 Quiz</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d2e;
+  --surface2: #222536;
+  --border: #2e3250;
+  --accent: #5b8df6;
+  --accent2: #7c6af7;
+  --green: #22c55e;
+  --green-bg: #052e16;
+  --green-border: #166534;
+  --red: #ef4444;
+  --red-bg: #2d0a0a;
+  --red-border: #991b1b;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 60px;
+}
+
+.header { width: 100%; max-width: 680px; text-align: center; margin-bottom: 28px; }
+.header h1 { font-size: 1.1rem; font-weight: 700; color: var(--accent); letter-spacing: .04em; margin-bottom: 4px; }
+.header p { font-size: .8rem; color: var(--text3); }
+
+.progress-wrap { width: 100%; max-width: 680px; background: var(--surface2); border-radius: 99px; height: 8px; margin-bottom: 10px; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width .4s ease; }
+.progress-label { width: 100%; max-width: 680px; display: flex; justify-content: space-between; font-size: .78rem; color: var(--text3); margin-bottom: 22px; }
+
+.card { width: 100%; max-width: 680px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px 28px 28px; box-shadow: var(--shadow); }
+
+.pos-tag { display: inline-block; background: var(--surface2); border: 1px solid var(--border); color: var(--text3); font-size: .7rem; font-weight: 600; letter-spacing: .06em; padding: 2px 10px; border-radius: 99px; margin-bottom: 18px; text-transform: uppercase; }
+
+.question { font-size: 2rem; font-weight: 700; color: #fff; letter-spacing: .02em; margin-bottom: 28px; line-height: 1.3; word-break: break-word; }
+
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .options { grid-template-columns: 1fr; } }
+
+.opt-btn { background: var(--surface2); border: 2px solid var(--border); border-radius: 10px; padding: 14px 18px; color: var(--text); font-size: .95rem; font-family: inherit; cursor: pointer; text-align: left; transition: border-color .15s, background .15s, transform .1s; line-height: 1.5; }
+.opt-btn:hover:not(:disabled) { border-color: var(--accent); background: #1e2340; transform: translateY(-1px); }
+.opt-btn:disabled { cursor: default; }
+.opt-btn.correct { border-color: var(--green); background: #0a2d1a; color: var(--green); }
+.opt-btn.wrong { border-color: var(--red); background: #2d0e0e; color: var(--red); }
+.opt-btn .opt-letter { display: inline-block; font-weight: 700; margin-right: 8px; color: var(--text3); }
+.opt-btn.correct .opt-letter { color: var(--green); }
+.opt-btn.wrong   .opt-letter { color: var(--red); }
+
+.explanation { margin-top: 20px; display: none; flex-direction: column; gap: 10px; }
+.explanation.show { display: flex; }
+
+.panel { border-radius: 10px; padding: 16px 18px; font-size: .88rem; line-height: 1.7; }
+.panel-green { background: var(--green-bg); border: 1px solid var(--green-border); }
+.panel-red   { background: var(--red-bg);   border: 1px solid var(--red-border); }
+.panel-title { font-weight: 700; font-size: .82rem; letter-spacing: .04em; margin-bottom: 6px; }
+.panel-green .panel-title { color: var(--green); }
+.panel-red   .panel-title { color: var(--red); }
+
+.next-btn { margin-top: 22px; width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: 10px; color: #fff; font-size: 1rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity .15s, transform .1s; display: none; }
+.next-btn:hover { opacity: .9; transform: translateY(-1px); }
+.next-btn.show { display: block; }
+
+.score-screen { width: 100%; max-width: 680px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 48px 28px; text-align: center; box-shadow: var(--shadow); display: none; }
+.score-screen.show { display: block; }
+.score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; color: #fff; margin: 0 auto 24px; box-shadow: 0 0 32px rgba(91,141,246,.4); }
+.score-msg { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+.score-sub { font-size: .9rem; color: var(--text2); margin-bottom: 32px; }
+.retry-btn { padding: 14px 40px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: 10px; color: #fff; font-size: 1rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity .15s; }
+.retry-btn:hover { opacity: .9; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Alicorn 2019 — B9「否定②」</h1>
+  <p>英→日　4択クイズ　全24問</p>
+</div>
+
+<div class="progress-wrap"><div class="progress-bar" id="pbar"></div></div>
+<div class="progress-label">
+  <span id="p-cur">問題 1 / 24</span>
+  <span id="p-score">正解 0</span>
+</div>
+
+<div class="card" id="quiz-card">
+  <div class="pos-tag" id="pos-tag"></div>
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+  <div class="explanation" id="explanation"></div>
+  <button class="next-btn" id="next-btn" onclick="nextQ()">次の問題 →</button>
+</div>
+
+<div class="score-screen" id="score-screen">
+  <div class="score-circle" id="score-circle"></div>
+  <div class="score-msg" id="score-msg"></div>
+  <div class="score-sub" id="score-sub"></div>
+  <button class="retry-btn" onclick="startQuiz()">やり直す</button>
+</div>
+
+<script>
+const LETTERS = ['A','B','C','D'];
+
+const questions = [
+  {
+    word: "impact",
+    pos: "n",
+    answer: "影響、衝撃",
+    distractors: ["原因、動機", "結果、産物", "障害、抵抗"],
+    correct_exp: "〈語源〉ラテン語impactus（打ちつけられた）→「衝突・強い影響」。have an impact on〜「〜に影響を与える」。impactful「影響力のある」。形容詞的にも使われます。",
+    wrong_exps: {
+      "原因、動機": "causeやmotiveとの混同。impactは「結果として生じる影響・衝撃」であり、何かを引き起こす「原因」側ではありません。",
+      "結果、産物": "outcome/resultとの混同。impactは結果に近い概念ですが、特に「強い打撃・衝撃的な影響」というニュアンスが重要です。",
+      "障害、抵抗": "obstacleやresistanceとの混同。impactには「妨げる」意味はなく、「力強くぶつかる影響」を表します。"
+    }
+  },
+  {
+    word: "tremendous",
+    pos: "adj",
+    answer: "途方もない、多大な",
+    distractors: ["穏やかな", "一時的な", "測定可能な"],
+    correct_exp: "〈語源〉ラテン語tremendus（震えを引き起こす）→「ものすごい・巨大な・素晴らしい」。a tremendous effort「多大な努力」。tremendously「非常に」も頻出。",
+    wrong_exps: {
+      "穏やかな": "gentleやmodesteとの混同。tremendousはtrembleと同語源で「震えるほど大きい」という強意語。穏やかさとは正反対です。",
+      "一時的な": "temporaryとのt-始まりの混同。tremendousには時間的な意味はなく、規模・程度の大きさを表します。",
+      "測定可能な": "measurableとの混同。tremendousは「計り知れないほど大きい」というニュアンスで、むしろ測定を超えた規模を表します。"
+    }
+  },
+  {
+    word: "manufacturer",
+    pos: "n",
+    answer: "製造業者、メーカー",
+    distractors: ["販売業者", "輸入業者", "広告代理店"],
+    correct_exp: "〈語源〉ラテン語manu（手で）+ factura（作ること）→「製造者・メーカー」。manufacture（製造する）の派生語。automobile manufacturer「自動車メーカー」。",
+    wrong_exps: {
+      "販売業者": "dealerやdistributorとの混同。manufacturerは「作る人」、dealerは「売る人」。自動車業界ではdealershipが販売店を指します。",
+      "輸入業者": "importerとの混同。manufacturerは国内外問わず「製造する主体」であり、輸入・輸出は別の業者が担うことが多いです。",
+      "広告代理店": "advertising agencyとの混同。manufacturerのfactura（作ること）が語源で、広告とは無関係です。"
+    }
+  },
+  {
+    word: "in prospect",
+    pos: "idiom",
+    answer: "見込まれる、予想される",
+    distractors: ["過去を振り返って", "実際に起きた結果として", "突然に、予告なく"],
+    correct_exp: "prospect（見通し・展望）→「見込まれている・将来が期待できる」。with larger sales in prospect「より大きな販売が見込まれる状態で」。in retrospect「振り返ると」と対比。",
+    wrong_exps: {
+      "過去を振り返って": "in retrospectとの混同。retro-（後ろへ）vs. pro-（前へ）。in prospectは未来を見据えた表現です。",
+      "実際に起きた結果として": "as a resultとの混同。in prospectはまだ起きていない「予測・見込み」を表し、すでに起きた結果ではありません。",
+      "突然に、予告なく": "out of the blueとの混同。in prospectには「突然」のニュアンスは全くなく、むしろ計画・予測のある未来を指します。"
+    }
+  },
+  {
+    word: "startling",
+    pos: "adj",
+    answer: "驚くべき、衝撃的な",
+    distractors: ["始まりの、初期の", "輝かしい", "徐々に進む"],
+    correct_exp: "〈語源〉startle（はっと驚かせる）+ -ing→「人をはっとさせるような・衝撃的な」。a startling discovery「驚くべき発見」。startledは「（人が）驚いた」と使い分けに注意。",
+    wrong_exps: {
+      "始まりの、初期の": "startingとのスペル混同。startlingはstartle（驚かせる）が語源で、start（始まる）とは別語。",
+      "輝かしい": "dazzlingやbrilliantとのl-ing形容詞混同。startlingの意味は「光」ではなく「心理的な衝撃」です。",
+      "徐々に進む": "gradualとの混同。startlingはむしろ「突然・急激に驚かせる」というニュアンスで、gradualの反対に近いです。"
+    }
+  },
+  {
+    word: "habit",
+    pos: "n",
+    answer: "習慣、生活様式",
+    distractors: ["趣味、娯楽", "住居、生息地", "衣服、装い"],
+    correct_exp: "〈語源〉ラテン語habitus（状態・様子）→「習慣・癖」。be in the habit of doing「〜する習慣がある」。habitat（生息地）、inhabit（住む）と同語源。",
+    wrong_exps: {
+      "趣味、娯楽": "hobbyとのh-b-t音の類似による混同。habitは「繰り返される行動パターン」、hobbyは「楽しみのための活動」。",
+      "住居、生息地": "habitatとの混同。habitとhabitatは同語根ですが、habitは「行動パターン」、habitatは「生物が住む場所」。",
+      "衣服、装い": "修道士・修道女の衣装もhabitと呼ぶことがあるが、本文では「生活様式・習慣」の意味です。"
+    }
+  },
+  {
+    word: "take place",
+    pos: "idiom",
+    answer: "起こる、生じる",
+    distractors: ["場所を取る", "立場を取る", "場所を与える"],
+    correct_exp: "take place＝「（事が）起こる・行われる」。主語は人でなくイベント・出来事。The ceremony took place in Tokyo.「式典は東京で行われた。」happenと同義で使えます。",
+    wrong_exps: {
+      "場所を取る": "take upスペースとの混同。take placeのplaceは「場所」でなく「起こること」という抽象的意味。「場所を取る」はtake up spaceです。",
+      "立場を取る": "take a standとの混同。take placeに「立場・意見」の意味はなく、イベントや変化が「生じる」ことを表します。",
+      "場所を与える": "give placeとの混同。takeとgiveを逆にした誤り。take placeは受け身的に「事が起きる」という自動詞的な用法です。"
+    }
+  },
+  {
+    word: "far-reaching",
+    pos: "adj",
+    answer: "広範囲にわたる",
+    distractors: ["遠く離れた", "手の届かない", "長距離の"],
+    correct_exp: "far（遠く）+ reaching（届く）→「広い範囲に及ぶ・影響が大きい」。far-reaching consequences「広範囲にわたる結果」。物理的距離でなく「影響の広がり」を表します。",
+    wrong_exps: {
+      "遠く離れた": "far awayやdistantとの混同。far-reachingは物理的な距離ではなく「影響・効果の広がり」を表す比喩的な表現です。",
+      "手の届かない": "out of reachとの混同。reachingを「届く」と文字通りに解釈した誤り。far-reachingは「広く届く＝影響が広範囲」という肯定的な意味です。",
+      "長距離の": "long-distanceとの混同。far-reachingは距離の長さでなく、影響・変化の「広がりの大きさ」を形容します。"
+    }
+  },
+  {
+    word: "effect",
+    pos: "n",
+    answer: "影響、結果",
+    distractors: ["原因、動機", "努力、試み", "目的、意図"],
+    correct_exp: "〈語源〉ラテン語effectus（成し遂げられたこと）→「影響・結果・効果」。have an effect on〜「〜に影響を与える」。affect（動詞）との混同注意。in effect「実質的に」も頻出。",
+    wrong_exps: {
+      "原因、動機": "causeとの混同。cause（原因）→effect（結果）という因果関係の流れで覚えましょう。cause and effect「原因と結果」。",
+      "努力、試み": "effortとのスペル混同（e-f-f-e）。effort＝「努力」、effect＝「結果・影響」。語頭3文字が同じで非常に混同しやすい語です。",
+      "目的、意図": "purposeやintentionとの混同。effectは意図ではなく「実際に生じた影響・結果」を指します。"
+    }
+  },
+  {
+    word: "communicate",
+    pos: "v",
+    answer: "意思疎通する",
+    distractors: ["通勤する", "命令する", "記録する"],
+    correct_exp: "〈語源〉ラテン語communicare（共有する）→「意思疎通する・伝える・通じ合う」。communication「コミュニケーション」、communicative「話し好きな」。community（共同体）と同語源。",
+    wrong_exps: {
+      "通勤する": "commuteとのcom-始まりの混同。commuteはラテン語commutare（取り替える）が語源で「通勤する・乗り換える」。communicateとは全く別です。",
+      "命令する": "commandとの混同。com-という接頭辞が共通。commandは「命令する」、communicateは「双方向に伝え合う」。",
+      "記録する": "documentやrecordとの混同。communicateには記録・文書化の意味はなく、「伝達・共有」という動的な行為を表します。"
+    }
+  },
+  {
+    word: "closely",
+    pos: "adv",
+    answer: "注意深く、面密に",
+    distractors: ["遠くから", "ゆっくりと", "公然と"],
+    correct_exp: "close（近い・密接な）+ -ly→「密接に・注意深く・よく」。look closely「よく見る」、closely related「密接に関連した」。watch closely「注意深く見守る」。",
+    wrong_exps: {
+      "遠くから": "from a distanceとの混同。closelyはcloseの副詞形で「近くで・密接に」という意味。遠くとは反対です。",
+      "ゆっくりと": "slowlyとのly副詞混同。closelyは速さではなく「距離の近さ・注意の深さ」を表します。",
+      "公然と": "openlyとの混同。openlyはopenの副詞形で「隠さず公に」、closelyはcloseの副詞形で「密接に・細かく」。"
+    }
+  },
+  {
+    word: "make contact with",
+    pos: "idiom",
+    answer: "〜と接触する",
+    distractors: ["〜と契約を結ぶ", "〜に影響を与える", "〜と衝突する"],
+    correct_exp: "make contact with〜＝「〜と接触する・連絡を取る」。eye contactと同じcontact（接触）が語根。get in touch with〜とほぼ同義。物理的接触にも人との連絡にも使えます。",
+    wrong_exps: {
+      "〜と契約を結ぶ": "make a contract withとの混同。contractとcontactはスペルが似ていますが、contract＝契約、contact＝接触・連絡。全く別の語です。",
+      "〜に影響を与える": "have an impact onとの混同。contactには「影響を与える」という一方向的な意味はなく、「触れ合う・接点を持つ」という双方向的な意味です。",
+      "〜と衝突する": "collide withとの混同。物理的な激しい衝突はcollide/crash。contactは「触れる・接する」という穏やかな接触を表します。"
+    }
+  },
+  {
+    word: "within days of",
+    pos: "idiom",
+    answer: "〜からほんの数日で",
+    distractors: ["〜の数日後に改めて", "〜から何週間も経って", "〜の前日に"],
+    correct_exp: "within（〜以内に）+ days of（〜の数日）→「〜から数日のうちに」。within days of being born「生まれてから数日のうちに」。withinは期間の短さを強調します。",
+    wrong_exps: {
+      "〜の数日後に改めて": "a few days laterとの混同。withinは「〜以内」という上限を示し、「改めて」という含意はありません。",
+      "〜から何週間も経って": "weeks laterとの混同。withinはむしろ「短期間のうちに」という意味で、長い時間経過を示す語とは対照的です。",
+      "〜の前日に": "the day before / on the eve ofとの混同。within days ofは過去の時点から数日以内という「短期間」を表し、「前日」という特定の時点ではありません。"
+    }
+  },
+  {
+    word: "fleeting",
+    pos: "adj",
+    answer: "一瞬の、束の間の",
+    distractors: ["断続的な", "速度を増す", "逃げ去る"],
+    correct_exp: "〈語源〉flee（逃げる）+ -ing→「すぐに過ぎ去る・束の間の」。a fleeting moment「一瞬の瞬間」、fleeting eye contact「ほんの一瞬の目の合い」。ephemeralと同義。",
+    wrong_exps: {
+      "断続的な": "intermittentとの混同。fleetingは「一度きりの短さ」、intermittentは「断続的に繰り返す」という継続パターンの違いがあります。",
+      "速度を増す": "fleetをspeedyと誤解した例。fleetには「艦隊・素早い」の意味もあるが、fleetingは「短く過ぎ去る」という形容詞です。",
+      "逃げ去る": "fleeing（freeの進行形）との混同。fleetingもfleeから派生していますが、「逃げる行為」ではなく「束の間の性質」を表す形容詞です。"
+    }
+  },
+  {
+    word: "eye contact",
+    pos: "idiom",
+    answer: "アイコンタクト",
+    distractors: ["視力検査", "目の治療", "視野の広さ"],
+    correct_exp: "eye（目）+ contact（接触）→「アイコンタクト・視線を合わせること」。make eye contact「目を合わせる」。コミュニケーションにおける非言語的要素として重要。",
+    wrong_exps: {
+      "視力検査": "eye testやvision checkとの混同。eye contactは医療・検査とは無関係で、「二者間で視線を交わす行為」を指します。",
+      "目の治療": "eye treatmentとの混同。contactをコンタクトレンズと連想した誤り。eye contactは人との視線の交流を表します。",
+      "視野の広さ": "field of visionとの混同。eye contactは「視野の広さ」でなく「相手と目が合う瞬間・行為」です。"
+    }
+  },
+  {
+    word: "intend",
+    pos: "v",
+    answer: "意図する",
+    distractors: ["注意を払う", "延長する", "理解する"],
+    correct_exp: "〈語源〉ラテン語intendere（向かって伸ばす）→「〜するつもりである・意図する」。intend to do / intend doing。intention「意図」、intentional「意図的な」。",
+    wrong_exps: {
+      "注意を払う": "attend toとの混同。attend（出席する・注意を払う）とintend（意図する）はスペルが似ていますが語源も意味も異なります。",
+      "延長する": "extendとのend部分の混同。extendはex-（外へ）+ tend（伸ばす）、intendはin-（向かって）+ tend（伸ばす）。同じtendが語根でも意味は違います。",
+      "理解する": "comprehendやunderstandとの混同。intendには「理解する」という意味はなく、「目的・意図を持って行う」という意志の方向性を表します。"
+    }
+  },
+  {
+    word: "interpret",
+    pos: "v",
+    answer: "解釈する、読み取る",
+    distractors: ["中断する", "輸入する", "妨げる"],
+    correct_exp: "〈語源〉ラテン語interpretari（仲介する）→「解釈する・通訳する・読み取る」。interpret data「データを解釈する」、interpreter「通訳者・解釈者」。interと混同しないよう注意。",
+    wrong_exps: {
+      "中断する": "interruptとのinter-始まりの混同。interrupt＝「中断する」（inter+rupt壊す）、interpret＝「解釈する」（inter+pretari交渉する）。接頭辞は同じでも語根が違います。",
+      "輸入する": "importとの混同。im-/in-始まりの語との混同。importはin+port（港へ運ぶ）、interpretは仲介・解釈が語源。全く別の語です。",
+      "妨げる": "interferとのinter-始まりの混同。interfere＝「妨げる・干渉する」、interpret＝「解釈する」。どちらもinter-ですが意味は全く異なります。"
+    }
+  },
+  {
+    word: "from the word go",
+    pos: "idiom",
+    answer: "最初から、始めから",
+    distractors: ["言葉通りに", "徐々に慣れて", "合図があってから"],
+    correct_exp: "競走のスタート号令「Go!」から→「最初の瞬間から・スタートから」。from the very beginning と同義。It was clear from the word go.「最初から明らかだった。」",
+    wrong_exps: {
+      "言葉通りに": "literally / word for wordとの混同。wordを「言葉通り」と解釈した誤り。from the word goのwordはスタートの掛け声「Go」に由来するイディオムです。",
+      "徐々に慣れて": "gradually getting used toとの混同。from the word goはむしろ「最初から・即座に」という即時性を表します。徐々にとは対照的。",
+      "合図があってから": "after the signalとの混同。競走の「Go」の合図が語源ですが、イディオムとしての意味は「合図の後から」でなく「その瞬間から＝最初から」です。"
+    }
+  },
+  {
+    word: "grimace",
+    pos: "n",
+    answer: "しかめっ面",
+    distractors: ["微笑み", "真剣な表情", "驚いた顔"],
+    correct_exp: "フランス語grimace（醜い顔）→「苦痛・嫌悪などによるしかめ面」。動詞としても使用：He grimaced in pain.「彼は痛みでしかめ面をした。」本文では笑顔か顔をゆがめているかの対比で登場。",
+    wrong_exps: {
+      "微笑み": "smileとの対比的混同。本文ではgrimaceかsmileかを親が判断する文脈。grimaceはsmileの反対で「不快・苦痛の表情」です。",
+      "真剣な表情": "serious expressionとの混同。grimaceは真剣さではなく「苦痛・不快・嫌悪の歪んだ表情」を表します。",
+      "驚いた顔": "surprised faceとの混同。grimaceには驚きのニュアンスはなく、「痛みや不快感による表情」が本来の意味です。"
+    }
+  },
+  {
+    word: "due to",
+    pos: "idiom",
+    answer: "〜が原因で",
+    distractors: ["〜にもかかわらず", "〜のために（目的）", "〜次第で"],
+    correct_exp: "due to〜＝「〜が原因で・〜のせいで」。because of〜と同義。The delay was due to heavy rain.「遅延は大雨が原因だった。」owing to〜も同義。名詞句の前に置く。",
+    wrong_exps: {
+      "〜にもかかわらず": "despite / in spite ofとの混同。due toは原因を示し、despiteは原因があっても逆の結果が出る「逆接」を示します。",
+      "〜のために（目的）": "in order to / for the purpose ofとの混同。due toは目的ではなく「過去の原因・理由」を示します。",
+      "〜次第で": "depending onとの混同。due toは確定した原因を示し、depending onは条件による変動を示します。"
+    }
+  },
+  {
+    word: "wind",
+    pos: "n",
+    answer: "おなら、ガス",
+    distractors: ["風、そよ風", "巻き上げる力", "息、呼吸"],
+    correct_exp: "windには「風」の他に「腸内ガス・おなら」という医学的・口語的意味があります。本文では赤ちゃんの笑顔かgas/windかの文脈で登場。break wind「おならをする」。",
+    wrong_exps: {
+      "風、そよ風": "最も一般的な意味との混同。本文の文脈（赤ちゃんの顔の表情がsmileかwindか）では腸内ガスの意味で使われています。",
+      "巻き上げる力": "wind up（巻き上げる）という動詞用法との混同。本文のwindは名詞で「腸内ガス」の医学的・日常的意味です。",
+      "息、呼吸": "breathとの混同。winded＝「息を切らした」という表現もありますが、本文のwindは腸内ガスを指します。"
+    }
+  },
+  {
+    word: "actively",
+    pos: "adv",
+    answer: "積極的に、能動的に",
+    distractors: ["実際に、現実に", "緊急に", "静かに"],
+    correct_exp: "active（活発な・能動的な）+ -ly→「積極的に・能動的に」。actively involved「積極的に関与して」。passive（受動的）の反対。actively try「積極的に試みる」。",
+    wrong_exps: {
+      "実際に、現実に": "actuallyとのact-始まりの混同。actuallyはactual（実際の）の副詞形、activelyはactive（活発な）の副詞形。語根が異なります。",
+      "緊急に": "urgentlyとの混同。activelyには緊急性のニュアンスはなく、「自ら進んで・積極的に」という主体性を表します。",
+      "静かに": "quietlyとの混同。activelyはactiveの副詞で「動的・積極的」、quietlyはquietの副詞で「静的・受動的」。意味は対照的です。"
+    }
+  },
+  {
+    word: "include",
+    pos: "v",
+    answer: "〜を加える、含める",
+    distractors: ["〜を除外する", "〜を結論付ける", "〜を閉じ込める"],
+    correct_exp: "〈語源〉ラテン語includere（中へ閉じ込める）→「含める・加える」。including〜「〜を含めて」は前置詞として頻出。反義語はexclude（排除する）。inclusive（包括的な）も重要。",
+    wrong_exps: {
+      "〜を除外する": "excludeとの混同。in-（中へ）vs. ex-（外へ）という接頭辞の違いで覚えましょう。includeとexcludeは完全な反意語です。",
+      "〜を結論付ける": "concludeとのclude語根の混同。include（中へ）、exclude（外へ）、conclude（共に閉じる＝結論）。-cludeは「閉じる」が語根で異なる接頭辞で意味が変わります。",
+      "〜を閉じ込める": "encloseとの混同。ラテン語の語源的には近いが、現代英語のincludeは「閉じ込める」でなく「一部として含める」という意味で使われます。"
+    }
+  },
+  {
+    word: "read in",
+    pos: "idiom",
+    answer: "読み取る、解釈する",
+    distractors: ["声に出して読む", "読書に集中する", "読み間違える"],
+    correct_exp: "read in〜＝「（発言・行動に）意味を読み取る・解釈する」。Parents read in what the baby means.「親は赤ちゃんの意味を読み取る。」read into〜とも言います。",
+    wrong_exps: {
+      "声に出して読む": "read aloud / read outとの混同。read inのinは「解釈する方向性」を示し、音読とは無関係です。",
+      "読書に集中する": "get absorbed in readingとの混同。read inは読書への没入ではなく「相手の言動から意味を解釈する」という行為を表します。",
+      "読み間違える": "misreadとの混同。read inには「誤り」のニュアンスはなく、積極的に意味を「読み取ろうとする」ことを表します。"
+    }
+  },
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  current = 0; score = 0;
+  document.getElementById('quiz-card').style.display = '';
+  document.getElementById('score-screen').classList.remove('show');
+  renderQ();
+}
+
+function renderQ() {
+  answered = false;
+  const q = questions[current];
+  const total = questions.length;
+
+  const pct = (current / total) * 100;
+  document.getElementById('pbar').style.width = pct + '%';
+  document.getElementById('p-cur').textContent = `問題 ${current + 1} / ${total}`;
+  document.getElementById('p-score').textContent = `正解 ${score}`;
+  document.getElementById('pos-tag').textContent = q.pos;
+  document.getElementById('question').textContent = q.word;
+
+  const opts = shuffle([q.answer, ...q.distractors]);
+  const container = document.getElementById('options');
+  container.innerHTML = '';
+  opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${LETTERS[i]}</span>${opt}`;
+    btn.onclick = () => selectAnswer(opt, btn);
+    container.appendChild(btn);
+  });
+
+  document.getElementById('explanation').innerHTML = '';
+  document.getElementById('explanation').className = 'explanation';
+  document.getElementById('next-btn').className = 'next-btn';
+}
+
+function selectAnswer(chosen, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const correct = q.answer;
+  const isCorrect = chosen === correct;
+  if (isCorrect) score++;
+
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    b.disabled = true;
+    const text = b.textContent.slice(1);
+    if (text === correct) b.classList.add('correct');
+    else if (b === btn && !isCorrect) b.classList.add('wrong');
+  });
+
+  const expDiv = document.getElementById('explanation');
+  if (isCorrect) {
+    expDiv.innerHTML = `
+      <div class="panel panel-green">
+        <div class="panel-title">✓ 正解！— ポイント</div>
+        <div>${q.correct_exp}</div>
+      </div>`;
+  } else {
+    expDiv.innerHTML = `
+      <div class="panel panel-green">
+        <div class="panel-title">✓ 正解の理由</div>
+        <div>${q.correct_exp}</div>
+      </div>
+      <div class="panel panel-red">
+        <div class="panel-title">✗ あなたが選んだ選択肢について</div>
+        <div>${q.wrong_exps[chosen] || '正解は「' + correct + '」です。'}</div>
+      </div>`;
+  }
+  expDiv.classList.add('show');
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQ() {
+  current++;
+  if (current >= questions.length) showScore();
+  else renderQ();
+}
+
+function showScore() {
+  document.getElementById('quiz-card').style.display = 'none';
+  const ss = document.getElementById('score-screen');
+  ss.classList.add('show');
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+  document.getElementById('score-circle').textContent = `${score}/${total}`;
+  let msg, sub;
+  if (pct === 100)      { msg = "🎉 パーフェクト！"; sub = "全問正解！完璧な語彙力です。"; }
+  else if (pct >= 80)   { msg = "🌟 優秀！";         sub = `正答率 ${pct}%。あと少しで完璧！`; }
+  else if (pct >= 60)   { msg = "👍 良い調子！";     sub = `正答率 ${pct}%。解説を確認して再挑戦！`; }
+  else                  { msg = "📚 もう一度！";     sub = `正答率 ${pct}%。語彙リストを見直そう。`; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('pbar').style.width = '100%';
+  document.getElementById('p-cur').textContent = `完了 ${total} / ${total}`;
+  document.getElementById('p-score').textContent = `正解 ${score}`;
+}
+
+startQuiz();
+</script>
+</body>
+</html>
