@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alicorn 2019 B10 クイズ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d2e;
+  --surface2: #252840;
+  --accent: #6c63ff;
+  --accent2: #48cfad;
+  --correct: #1a4a30;
+  --correct-border: #2ecc71;
+  --wrong: #4a1a1a;
+  --wrong-border: #e74c3c;
+  --text: #e8eaf6;
+  --text2: #9ca3b8;
+  --choice-hover: #2e3350;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+}
+
+.container {
+  width: 100%;
+  max-width: 680px;
+}
+
+header {
+  text-align: center;
+  padding: 20px 0 12px;
+}
+
+header h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+header p {
+  font-size: 0.82rem;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+.progress-bar-wrap {
+  background: var(--surface);
+  border-radius: 8px;
+  height: 8px;
+  margin: 12px 0;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 8px;
+  transition: width 0.4s ease;
+}
+
+.progress-label {
+  text-align: right;
+  font-size: 0.78rem;
+  color: var(--text2);
+  margin-bottom: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px 20px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.pos-tag {
+  display: inline-block;
+  background: var(--surface2);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.word-display {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 14px 0;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.prompt {
+  font-size: 0.85rem;
+  color: var(--text2);
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.choices {
+  display: grid;
+  gap: 10px;
+}
+
+.choice-btn {
+  background: var(--surface2);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 1rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.choice-btn:hover:not(:disabled) {
+  background: var(--choice-hover);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.choice-btn .letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg);
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.choice-btn.correct {
+  background: var(--correct);
+  border-color: var(--correct-border);
+}
+
+.choice-btn.wrong {
+  background: var(--wrong);
+  border-color: var(--wrong-border);
+  opacity: 0.75;
+}
+
+.choice-btn.correct .letter {
+  background: var(--correct-border);
+  color: #fff;
+}
+
+.choice-btn.wrong .letter {
+  background: var(--wrong-border);
+  color: #fff;
+}
+
+.explanation {
+  margin-top: 14px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.exp-panel {
+  padding: 14px 16px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.exp-panel.correct-panel {
+  background: rgba(46, 204, 113, 0.12);
+  border-left: 4px solid var(--correct-border);
+}
+
+.exp-panel.wrong-panel {
+  background: rgba(231, 76, 60, 0.1);
+  border-left: 4px solid var(--wrong-border);
+  margin-top: 8px;
+}
+
+.exp-heading {
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.exp-panel.correct-panel .exp-heading { color: var(--correct-border); }
+.exp-panel.wrong-panel .exp-heading { color: var(--wrong-border); }
+
+.next-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 14px;
+  cursor: pointer;
+  margin-top: 16px;
+  letter-spacing: 0.04em;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.next-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Score screen */
+.score-screen {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 0 30px rgba(108,99,255,0.4);
+}
+
+.score-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.score-total {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+}
+
+.score-msg {
+  font-size: 1.1rem;
+  color: var(--text);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.score-sub {
+  font-size: 0.88rem;
+  color: var(--text2);
+  margin-bottom: 28px;
+}
+
+.retry-btn {
+  background: var(--surface2);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retry-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Alicorn 2019 — B10 副詞節（1）</h1>
+    <p>英→日 4択クイズ | 全23問</p>
+  </header>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+  </div>
+  <div class="progress-label" id="progressLabel">0 / 23</div>
+
+  <div id="quizArea">
+    <div class="card">
+      <span class="pos-tag" id="posTag">n</span>
+      <div class="word-display" id="wordDisplay">—</div>
+      <div class="prompt">日本語の意味を選んでください</div>
+      <div class="choices" id="choicesArea"></div>
+      <div class="explanation hidden" id="explanationArea"></div>
+    </div>
+    <button class="next-btn hidden" id="nextBtn" onclick="nextQuestion()">次の問題 →</button>
+  </div>
+
+  <div class="score-screen hidden" id="scoreScreen">
+    <div class="score-circle">
+      <div class="score-number" id="scoreNum">0</div>
+      <div class="score-total" id="scoreTotal">/ 0</div>
+    </div>
+    <div class="score-msg" id="scoreMsg">—</div>
+    <div class="score-sub" id="scoreSub"></div>
+    <button class="retry-btn" onclick="startQuiz()">やり直す</button>
+  </div>
+</div>
+
+<script>
+const QUIZ_DATA = [
+  {
+    "word": "city center",
+    "pos": "idiom",
+    "answer": "市の中心部",
+    "distractors": [
+      {
+        "text": "市役所",
+        "reason": "city（市）という語から「市役所」を連想しがちですが、city centerは「都心・市の中心部」を指します。市役所はcity hallです。"
+      },
+      {
+        "text": "繁華街の入口",
+        "reason": "centerから「入口」を想像しやすいですが、centerは「中心」であり、入口(entrance)とは異なります。"
+      },
+      {
+        "text": "都市計画",
+        "reason": "city（都市）＋center（中心）を「都市計画」と解釈するのは誤りです。都市計画はurban planningです。"
+      }
+    ],
+    "explanation": "city centerは「都市の中心部・ダウンタウン」を意味するイディオム。米英ではtown centreとも言います。覚え方：city＝都市、center＝中心 → 都市の中心地！"
+  },
+  {
+    "word": "especially",
+    "pos": "adv",
+    "answer": "特に",
+    "distractors": [
+      {
+        "text": "全体的に",
+        "reason": "especiallyは強調の副詞で「特に・とりわけ」を意味します。「全体的に」はgenerallyやoverallです。"
+      },
+      {
+        "text": "主に",
+        "reason": "mainlyと混同しやすいですが、especiallyは「他と比べて際立って」というニュアンスです。"
+      },
+      {
+        "text": "例えば",
+        "reason": "for exampleとの混同です。especiallyは例示ではなく、強調・絞り込みを表します。"
+      }
+    ],
+    "explanation": "especially（副）「特に・とりわけ」。ラテン語specialis（特別な）が語源。special→especially。「特別に」というイメージで覚えよう！"
+  },
+  {
+    "word": "fare",
+    "pos": "n",
+    "answer": "（交通機関の）運賃",
+    "distractors": [
+      {
+        "text": "料金表",
+        "reason": "fareはtariff（料金表）ではなく、実際に支払う「運賃」そのものを指します。"
+      },
+      {
+        "text": "食べ物・料理",
+        "reason": "fareには「料理・食事」という意味もありますが、文脈（交通・バス代）では「運賃」が正解です。"
+      },
+      {
+        "text": "罰金",
+        "reason": "fine（罰金）との混同。fareは「乗車賃」であり、違反に対する罰金ではありません。"
+      }
+    ],
+    "explanation": "fare（名）「運賃・乗車賃」。bus fare（バス代）、train fare（電車代）。同音語fair（公平な）と区別しよう！"
+  },
+  {
+    "word": "go up",
+    "pos": "idiom",
+    "answer": "（値段が）上がる",
+    "distractors": [
+      {
+        "text": "立ち上がる",
+        "reason": "go upは物理的に立ち上がることもありますが、「値段・価格」が主語の文では「上昇する」が正解です。"
+      },
+      {
+        "text": "登場する",
+        "reason": "appear（登場する）とのイメージ混同。go upは「上昇・値上がり」を意味します。"
+      },
+      {
+        "text": "破裂する",
+        "reason": "go up in flames（爆発する）という表現もありますが、fareと組み合わせた本文では「値上がり」です。"
+      }
+    ],
+    "explanation": "go up「上昇する・（値段が）上がる」。反対はgo down（下がる）。Prices went up 10%.（物価が10%上がった）"
+  },
+  {
+    "word": "presentable",
+    "pos": "adj",
+    "answer": "見栄えのする",
+    "distractors": [
+      {
+        "text": "目立つ",
+        "reason": "conspicuous（目立つ）との混同。presentableは「人前に出せる・きちんとした外見の」という意味です。"
+      },
+      {
+        "text": "贈り物に適した",
+        "reason": "present（プレゼント）を連想しがちですが、presentableはpresent（提示する）が語源で「提示できる状態の＝見栄えのする」です。"
+      },
+      {
+        "text": "礼儀正しい",
+        "reason": "politeとの混同。presentableは外見・状態に関する語です。礼儀はmanners/politeで表します。"
+      }
+    ],
+    "explanation": "presentable（形）「見栄えのする・人前に出られる」。present（提示する）＋-able＝「人前に出せる状態の」。look presentable（見栄えよくする）"
+  },
+  {
+    "word": "Careers Office",
+    "pos": "idiom",
+    "answer": "就職相談室",
+    "distractors": [
+      {
+        "text": "人事部",
+        "reason": "人事部はHR department（Human Resources）。Careers Officeは学校や公共機関での就職相談窓口です。"
+      },
+      {
+        "text": "職業体験センター",
+        "reason": "work experience centerとの混同。Careers Officeは相談・情報提供を行う「就職相談室」です。"
+      },
+      {
+        "text": "役所の窓口",
+        "reason": "government officeとの混同。Careers Officeは職業・就職に特化した相談室で、役所全般ではありません。"
+      }
+    ],
+    "explanation": "Careers Office「就職相談室・職業安定所」。英国の公共機関・大学などに設置。career（職業・キャリア）＋office（事務所）"
+  },
+  {
+    "word": "catch a bus",
+    "pos": "idiom",
+    "answer": "バスに乗る",
+    "distractors": [
+      {
+        "text": "バスを止める",
+        "reason": "catchは「捕まえる」ですが、catch a busは「バスに間に合う・バスに乗る」という意味です。stop a busとは違います。"
+      },
+      {
+        "text": "バスを見送る",
+        "reason": "miss a bus（乗り遅れる）の逆がcatch a busです。見送るのはsee off a busです。"
+      },
+      {
+        "text": "バスで運ぶ",
+        "reason": "transport by busとの混同。catch a busは自分がバスに乗ることで、物を運ぶ意味はありません。"
+      }
+    ],
+    "explanation": "catch a bus「バスに乗る・バスに間に合う」。catch a train（電車に乗る）も同じ用法。miss a bus（乗り遅れる）の反対！"
+  },
+  {
+    "word": "control",
+    "pos": "v",
+    "answer": "制御する",
+    "distractors": [
+      {
+        "text": "観察する",
+        "reason": "monitor/observe（観察する）との混同。controlは「支配・制御」であり、観察ではありません。"
+      },
+      {
+        "text": "命令する",
+        "reason": "order/command（命令する）に似たニュアンスはありますが、controlは「コントロール・管理」という意味が核心です。"
+      },
+      {
+        "text": "改善する",
+        "reason": "improve（改善する）との混同。controlはその状態を維持・制御することで、改善を意味しません。"
+      }
+    ],
+    "explanation": "control（動）「制御する・支配する」。フランス語contrôle（調査・検査）が語源。self-control（自制心）、remote control（リモコン）"
+  },
+  {
+    "word": "environment",
+    "pos": "n",
+    "answer": "環境",
+    "distractors": [
+      {
+        "text": "雰囲気",
+        "reason": "atmosphere/atmosphere（雰囲気）との混同。environmentは客観的な「環境・周囲の状況」です。"
+      },
+      {
+        "text": "自然界",
+        "reason": "environmentはnature（自然）より広い概念。社会的・物理的環境すべてを含みます。"
+      },
+      {
+        "text": "条件",
+        "reason": "condition（条件）との混同。environmentは取り巻く総合的な「環境」を指します。"
+      }
+    ],
+    "explanation": "environment（名）「環境」。environ（囲む）＋-ment。environmental pollution（環境汚染）、work environment（職場環境）"
+  },
+  {
+    "word": "purpose",
+    "pos": "n",
+    "answer": "目的",
+    "distractors": [
+      {
+        "text": "成果",
+        "reason": "result/outcome（成果）との混同。purposeは「達成しようとする意図・目的」です。"
+      },
+      {
+        "text": "役割",
+        "reason": "role（役割）との混同。purposeは「何のためにそれをするか」という目的意識です。"
+      },
+      {
+        "text": "動機",
+        "reason": "motive（動機）と似ていますが、purposeはより明確な「目標・目的」を指します。"
+      }
+    ],
+    "explanation": "purpose（名）「目的・意図」。on purpose（わざと）、the purpose of（〜の目的）。goal（目標）と似ていますが、purposeはより広い「意義・意図」を含みます。"
+  },
+  {
+    "word": "communication",
+    "pos": "n",
+    "answer": "コミュニケーション",
+    "distractors": [
+      {
+        "text": "情報",
+        "reason": "information（情報）との混同。communicationは情報のやり取りプロセス全体を指します。"
+      },
+      {
+        "text": "言語",
+        "reason": "language（言語）はコミュニケーションの手段のひとつ。communicationはより広い概念です。"
+      },
+      {
+        "text": "会話",
+        "reason": "conversationは対話・会話という具体的な形式。communicationはあらゆる意思疎通の総称です。"
+      }
+    ],
+    "explanation": "communication（名）「意思疎通・コミュニケーション」。ラテン語communicare（共有する）が語源。communicate（動）とセットで覚えよう！"
+  },
+  {
+    "word": "within limits",
+    "pos": "idiom",
+    "answer": "ある程度の範囲内で",
+    "distractors": [
+      {
+        "text": "制限なしに",
+        "reason": "without limits（制限なし）の真逆。withinは「〜の内側で」という意味です。"
+      },
+      {
+        "text": "期限内に",
+        "reason": "within the deadline（期限内に）との混同。within limitsのlimitsは「限度・範囲」を意味します。"
+      },
+      {
+        "text": "最低限度で",
+        "reason": "at a minimum（最低限）との混同。within limitsは上限も含めた「ある程度の範囲内で」です。"
+      }
+    ],
+    "explanation": "within limits「ある程度の範囲内で・適度に」。within（〜以内）＋limits（限界・範囲）。Keep it within limits.（ほどほどにしておきなさい）"
+  },
+  {
+    "word": "arrange",
+    "pos": "v",
+    "answer": "整える",
+    "distractors": [
+      {
+        "text": "変更する",
+        "reason": "change/alter（変更する）との混同。arrangeは「きちんと整理・準備する」というニュアンスです。"
+      },
+      {
+        "text": "合意する",
+        "reason": "agree（合意する）との混同。arrangeは「手配・準備」を意味し、合意そのものではありません。"
+      },
+      {
+        "text": "混乱させる",
+        "reason": "arrangeの反対に近いのがdisarrange（乱す）。arrangeは秩序立てることです。"
+      }
+    ],
+    "explanation": "arrange（動）「整える・手配する・取り決める」。arrangement（名：取り決め）とセット。flower arrangement（生け花）、arrange a meeting（会議を設定する）"
+  },
+  {
+    "word": "balance",
+    "pos": "v",
+    "answer": "釣り合わせる",
+    "distractors": [
+      {
+        "text": "比較する",
+        "reason": "compare（比較する）との混同。balanceは「均等に保つ・釣り合わせる」を意味します。"
+      },
+      {
+        "text": "計算する",
+        "reason": "balance a budget（予算を均衡させる）から「計算」を連想しがちですが、本義は「均衡・釣り合い」です。"
+      },
+      {
+        "text": "補う",
+        "reason": "補うのはcompensate/supplement。balanceは両側を等しくするイメージです。"
+      }
+    ],
+    "explanation": "balance（動）「釣り合わせる・均衡を保つ」。名詞では「バランス・均衡・残高」。balance between A and B（AとBのバランスをとる）"
+  },
+  {
+    "word": "desire",
+    "pos": "n",
+    "answer": "欲望",
+    "distractors": [
+      {
+        "text": "必要性",
+        "reason": "necessity/need（必要性）との混同。desireは強い「欲求・望み」であり、必要性とは別です。"
+      },
+      {
+        "text": "夢",
+        "reason": "dream（夢）と似たニュアンスがありますが、desireはより具体的・強烈な「欲求」です。"
+      },
+      {
+        "text": "期待",
+        "reason": "expectation（期待）との混同。desireは「強く望む気持ち」そのものです。"
+      }
+    ],
+    "explanation": "desire（名）「欲望・強い願望」。ラテン語desiderare（熱望する）が語源。desire for（〜への欲求）、sexual desire（性的欲求）"
+  },
+  {
+    "word": "situation",
+    "pos": "n",
+    "answer": "状況",
+    "distractors": [
+      {
+        "text": "環境",
+        "reason": "environmentと混同しやすい。situationは特定の時点での「状況・事態」を指します。"
+      },
+      {
+        "text": "位置",
+        "reason": "situateは「〜に位置する」の意味もありますが、situationは主に「状況・立場」を指します。"
+      },
+      {
+        "text": "解決策",
+        "reason": "solution（解決策）との混同。situationは問題そのものの「状況」であり、解決策ではありません。"
+      }
+    ],
+    "explanation": "situation（名）「状況・立場・場所」。situate（位置させる）＋-ion。in a difficult situation（困難な状況で）"
+  },
+  {
+    "word": "unhappy",
+    "pos": "adj",
+    "answer": "不満な",
+    "distractors": [
+      {
+        "text": "怒った",
+        "reason": "angry（怒った）とは異なります。unhappyは「悲しい・不満な」状態で、怒りとは区別されます。"
+      },
+      {
+        "text": "不幸な",
+        "reason": "unhappyには「不幸な」という意味もありますが、本文では「何かに不満を持っている」文脈での使用です。"
+      },
+      {
+        "text": "心配な",
+        "reason": "worried（心配な）との混同。unhappyは状況への不満・悲しみです。"
+      }
+    ],
+    "explanation": "unhappy（形）「不満な・悲しい・不幸な」。un-（否定）＋happy。be unhappy with（〜に不満である）という表現で覚えよう！"
+  },
+  {
+    "word": "complain",
+    "pos": "v",
+    "answer": "不平を言う",
+    "distractors": [
+      {
+        "text": "批判する",
+        "reason": "criticize（批判する）との混同。complainはより日常的な「愚痴・不満を述べる」行為です。"
+      },
+      {
+        "text": "申し立てる",
+        "reason": "complain toには「申し立てる」意味もありますが、日常的には「不平・文句を言う」が核心です。"
+      },
+      {
+        "text": "拒否する",
+        "reason": "refuse（拒否する）との混同。complainは不満を言葉で表現することです。"
+      }
+    ],
+    "explanation": "complain（動）「不平を言う・苦情を言う」。complain about（〜について不満を言う）、complain to（〜に苦情を申し立てる）。complaint（名：苦情）とセット！"
+  },
+  {
+    "word": "behaviour",
+    "pos": "n",
+    "answer": "行動",
+    "distractors": [
+      {
+        "text": "態度",
+        "reason": "attitudeは「心構え・姿勢」。behaviourは実際の「行動・ふるまい」を指します。"
+      },
+      {
+        "text": "習慣",
+        "reason": "habit（習慣）との混同。behaviourは一時的な行動も含む広い概念です。"
+      },
+      {
+        "text": "人格",
+        "reason": "character/personality（人格）との混同。behaviourは外から見える「行動・振る舞い」です。"
+      }
+    ],
+    "explanation": "behaviour（名）「行動・ふるまい・行儀」（英国綴り；米国ではbehavior）。behave（動）＋-iour。good behaviour（良い行動）"
+  },
+  {
+    "word": "encourage",
+    "pos": "v",
+    "answer": "促す",
+    "distractors": [
+      {
+        "text": "強制する",
+        "reason": "force/compel（強制する）とは対照的。encourageは強制でなく「自発的な行動を後押しする」です。"
+      },
+      {
+        "text": "褒める",
+        "reason": "praise（褒める）と似た文脈で使われますが、encourageは「やる気を引き出す・促進する」という行為です。"
+      },
+      {
+        "text": "許可する",
+        "reason": "allow/permit（許可する）との混同。encourageは許可ではなく積極的な後押しです。"
+      }
+    ],
+    "explanation": "encourage（動）「促す・励ます・奨励する」。en-（強意）＋courage（勇気）→ 勇気を与える。encourage A to do（Aが〜するよう促す）"
+  },
+  {
+    "word": "repeat",
+    "pos": "v",
+    "answer": "繰り返す",
+    "distractors": [
+      {
+        "text": "再開する",
+        "reason": "resume（再開する）との混同。repeatは中断なく「同じことを繰り返す」です。"
+      },
+      {
+        "text": "模倣する",
+        "reason": "imitate（模倣する）との混同。repeatは同じ行為を再び行うことで、模倣とは異なります。"
+      },
+      {
+        "text": "強調する",
+        "reason": "emphasize（強調する）との混同。repeatは繰り返しの行為、emphasisは重要性の強調です。"
+      }
+    ],
+    "explanation": "repeat（動）「繰り返す・反復する」。ラテン語repetere（再び求める）が語源。repeat oneself（同じことを繰り返し言う）"
+  },
+  {
+    "word": "continue",
+    "pos": "v",
+    "answer": "続ける",
+    "distractors": [
+      {
+        "text": "維持する",
+        "reason": "maintain（維持する）との混同。continueは「中断なく進め続ける」行為です。"
+      },
+      {
+        "text": "再び始める",
+        "reason": "restart（再び始める）との混同。continueはすでに行っていることを「続ける」です。"
+      },
+      {
+        "text": "発展させる",
+        "reason": "develop（発展させる）との混同。continueは現状を「続ける」であり、変化や発展を含みません。"
+      }
+    ],
+    "explanation": "continue（動）「続ける・継続する」。ラテン語continuare（継続する）が語源。continue doing / continue to do どちらも正しい用法！"
+  }
+];
+
+let questions = [];
+let current = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildQuestions() {
+  return QUIZ_DATA.map(item => {
+    const choices = shuffle([
+      { text: item.answer, correct: true, reason: null },
+      ...item.distractors.map(d => ({ text: d.text, correct: false, reason: d.reason }))
+    ]);
+    return { ...item, choices };
+  });
+}
+
+function startQuiz() {
+  questions = buildQuestions();
+  current = 0;
+  score = 0;
+  document.getElementById('quizArea').classList.remove('hidden');
+  document.getElementById('scoreScreen').classList.add('hidden');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const total = questions.length;
+  
+  document.getElementById('progressBar').style.width = (current / total * 100) + '%';
+  document.getElementById('progressLabel').textContent = current + ' / ' + total;
+  document.getElementById('posTag').textContent = q.pos;
+  document.getElementById('wordDisplay').textContent = q.word;
+  
+  const letters = ['A', 'B', 'C', 'D'];
+  const area = document.getElementById('choicesArea');
+  area.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${c.text}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    area.appendChild(btn);
+  });
+  
+  document.getElementById('explanationArea').classList.add('hidden');
+  document.getElementById('explanationArea').innerHTML = '';
+  document.getElementById('nextBtn').classList.add('hidden');
+  answered = false;
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  
+  const q = questions[current];
+  const chosen = q.choices[idx];
+  const btns = document.querySelectorAll('.choice-btn');
+  
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (q.choices[i].correct) btn.classList.add('correct');
+    else if (i === idx) btn.classList.add('wrong');
+  });
+  
+  const expArea = document.getElementById('explanationArea');
+  expArea.classList.remove('hidden');
+  
+  if (chosen.correct) {
+    score++;
+    expArea.innerHTML = `
+      <div class="exp-panel correct-panel">
+        <div class="exp-heading">✓ 正解！ — ポイント</div>
+        <div>${q.explanation}</div>
+      </div>`;
+  } else {
+    expArea.innerHTML = `
+      <div class="exp-panel correct-panel">
+        <div class="exp-heading">✓ 正解の理由</div>
+        <div>${q.explanation}</div>
+      </div>
+      <div class="exp-panel wrong-panel">
+        <div class="exp-heading">✗ あなたが選んだ選択肢について</div>
+        <div>「${chosen.text}」を選んだ理由と正解との違い：${chosen.reason}</div>
+      </div>`;
+  }
+  
+  document.getElementById('nextBtn').classList.remove('hidden');
+  if (current === questions.length - 1) {
+    document.getElementById('nextBtn').textContent = '結果を見る →';
+  }
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showScore();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showScore() {
+  const total = questions.length;
+  document.getElementById('quizArea').classList.add('hidden');
+  document.getElementById('scoreScreen').classList.remove('hidden');
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('progressLabel').textContent = total + ' / ' + total;
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreTotal').textContent = '/ ' + total;
+  
+  const pct = score / total;
+  let msg, sub;
+  if (pct >= 0.9) { msg = '🎉 素晴らしい！'; sub = 'ほぼ完璧です。次のセクションへ進みましょう！'; }
+  else if (pct >= 0.7) { msg = '👍 よくできました！'; sub = '苦手な語を復習してさらにアップを目指そう。'; }
+  else if (pct >= 0.5) { msg = '💪 もう少し！'; sub = '語彙リストに戻って確認しましょう。'; }
+  else { msg = '📖 要復習'; sub = '語彙リストをしっかり読み直してから再挑戦！'; }
+  
+  document.getElementById('scoreMsg').textContent = msg;
+  document.getElementById('scoreSub').textContent = sub;
+}
+
+startQuiz();
+</script>
+</body>
+</html>
